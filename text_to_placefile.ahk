@@ -22,6 +22,18 @@ SetWorkingDir %A_ScriptDir%
 CoordMode, Mouse, Screen
 CoordMode, ToolTip, Screen
 Menu, Tray, Tip, Text to Placefile`nClick the middle mouse button or press T to place text on the screen.
+If (A_IsCompiled)
+	Menu, Tray, NoStandard
+Menu, Tray, Add, Help, help
+Menu, Tray, Add
+Menu, Tray, Add, Exit, ButtonExit
+Menu, Tray, Default, Exit
+IfNotExist, text_options.ini
+{
+	MsgBox, 8228, First Run, Would you like to view the instructions for this program?`nYou can view them later by clicking Help from the system tray icon.
+	IfMsgBox, Yes
+		Gosub, help
+}
 
 IniRead, font_num, text_options.ini, options, font_num, 1
 IniRead, placefile_name, text_options.ini, options, placefile_name, text_placefile.txt
@@ -50,6 +62,10 @@ GroupAdd, GRX, ahk_class GR2Analyst
 ~MButton::Goto, add_text
 ~t::Goto, add_text
 #IfWinActive
+Return
+
+help:
+Run, https://github.com/ih57452/text_to_placefile/wiki
 Return
 
 GuiClose:
