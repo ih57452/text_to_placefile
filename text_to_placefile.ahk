@@ -19,6 +19,7 @@ SendMode Input
 SetWorkingDir %A_ScriptDir%
 #Include .\lib\Dlg.ahk ;by majkinetor ~ http://www.autohotkey.com/forum/topic17230.html
 #Include .\lib\Gdip.ahk ;by tic ~ http://www.autohotkey.com/forum/viewtopic.php?t=32238
+#Include .\lib\outline_function.ahk ;by fasto ~ http://www.autohotkey.com/forum/viewtopic.php?p=318407#318407
 CoordMode, Mouse, Screen
 CoordMode, ToolTip, Screen
 Menu, Tray, Tip, Text to Placefile`nClick the middle mouse button or press T to place text on the screen.
@@ -132,7 +133,25 @@ IfNotExist, %placefile_name%
 	Gosub, create_header
 new_icon := Gdip_CreateBitmap(icon_width, icon_height)
 G := Gdip_GraphicsFromImage(new_icon)
-Gdip_TextToGraphics(G, text, "Center r4 cff" . SubStr(font%font_num%_color, 3) . " " . font%font_num%_style, font%font_num%_name, icon_width, icon_height)
+;~ Gdip_TextToGraphics(G, text, "Center r4 cff" . SubStr(font%font_num%_color, 3) . " " . font%font_num%_style, font%font_num%_name, icon_width, icon_height)
+
+Gdip_SetInterpolationMode(G ,7)
+pPath := Gdip_CreatePath(0)
+;~ Gdip_AddString(pPath, text, font%font_num%_name, "Center r4 cff" . SubStr(font%font_num%_color, 3) . " " . font%font_num%_style . " w" . icon_width . " h" . icon_height)
+Gdip_AddString(pPath, text, font%font_num%_name, "Center r4 c00000000" . " " . font%font_num%_style . " w" . icon_width . " h" . icon_height)
+Loop, 5
+{
+	pPen := Gdip_CreatePen(0x55ffffff, A_index)
+	Gdip_SetLineJoin(pPen)	
+	Gdip_DrawPath(G, pPen, pPath)
+}		
+
+pBrush := Gdip_BrushCreateSolid("0xff" . SubStr(font%font_num%_color, 3))
+Gdip_FillPath(G, pBrush, pPath)
+Gdip_DeletePen(pPen)
+Gdip_DeletePath(pPath)
+Gdip_DeleteBrush(pBrush)
+
 Gdip_DeleteGraphics(G)
 Gui, 2: -Caption +E0x80000 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs
 Gui, 2: Show
